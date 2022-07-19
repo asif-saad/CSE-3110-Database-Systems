@@ -26,7 +26,7 @@ insert into Department values(196,'Sea food',19610504);
 
 
 
--- 'EID' MAY REQUIRE SOME MODIFICATION
+--eid modified
 
 
 
