@@ -1,3 +1,6 @@
+-- ADDING NEW RECORDS WITH THE HELP OF PROCEDURE
+
+
 CREATE OR REPLACE PROCEDURE ADD_RECORD(
     supplierid Supplier.SupplierId%TYPE,
     suppliername Supplier.SupplierName%TYPE,

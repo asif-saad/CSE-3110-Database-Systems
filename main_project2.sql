@@ -248,11 +248,11 @@ insert into Employee values('Larry',61003.43,1901220,01654876912,19);
 
 
 -- (Eid, Billno, Cname, Cphone number, Billdate, Amount, Billmethod)
-insert into Bill values(100212,2579732392215259653,'Asif',01991912661,0334567890,'12-JAN-2022',1045.2,'Bkash');
-insert into Bill values(100110,21211935258104054070,'Saad',01946728227,0345678901,'14-FEB-2022',876.98,'Cash');
-insert into Bill values(100212,16521037165827003655,'Otto',01875043576,0367890123,'23-JUN-2022',2321.76,'Visa Card');
-insert into Bill values(100212,11596156378532767219,'Thomas',01991948555,0301234567,'05-JUL-2022',4329.95,'Cash');
-insert into Bill values(100110,27234131228344892985,'Mike',01991948235,0312345678,'09-JAN-2022',1875.34,'Cash');
+insert into Bill values(100212,2579732392215259653,'Asif',01991912661,0334567890,'12-JAN-22',1045.2,'Bkash');
+insert into Bill values(100110,21211935258104054070,'Saad',01946728227,0345678901,'14-FEB-22',876.98,'Cash');
+insert into Bill values(100212,16521037165827003655,'Otto',01875043576,0367890123,'23-JUN-22',2321.76,'Visa Card');
+insert into Bill values(100212,11596156378532767219,'Thomas',01991948555,0301234567,'05-JUL-22',4329.95,'Cash');
+insert into Bill values(100110,27234131228344892985,'Mike',01991948235,0312345678,'09-JAN-22',1875.34,'Cash');
 
 
 
@@ -296,6 +296,558 @@ insert into payment values(345678901,21211935258104054070);
 insert into payment values(367890123,16521037165827003655);
 insert into payment values(301234567,11596156378532767219);
 insert into payment values(312345678,27234131228344892985);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- WORKING ON CURSOR
+
+-- FINDING THE PRODUCT THAT IS STORED HIGHEST NUMBER
+
+SET SERVEROUTPUT ON
+
+DECLARE 
+    max_quantity Product.Quantity%TYPE;
+    max_quantity_name Product.PName%TYPE;
+
+BEGIN
+    SELECT MAX(Quantity) into max_quantity
+    FROM Product;
+    SELECT PName INTO max_quantity_name
+    FROM Product
+    WHERE Quantity=max_quantity;
+    DBMS_OUTPUT.PUT_LINE(max_quantity_name || ' HAS THE HIGHEST ' || max_quantity || ' QUANTITY' );
+    END;
+/
+
+
+
+
+
+-- AND THE FOLLOWING PL/SQL CONTAINS THE FIRST 4 SUPPLIES AND THEIR PRICE
+SET SERVEROUTPUT ON
+
+DECLARE
+
+    CURSOR product_detail IS SELECT PName,Price FROM product;
+    product_record product_detail%ROWTYPE;
+
+BEGIN
+OPEN product_detail;
+    LOOP
+        FETCH product_detail INTO product_record;
+        EXIT WHEN product_detail%ROWCOUNT>4;
+        DBMS_OUTPUT.PUT_LINE('NAME: ' || product_record.PName || ' AND IT COSTS ' || product_record.Price || ' PER PIECE');
+        END LOOP;
+        CLOSE product_detail;
+END;
+/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- FUNCTION IMPLEMENTATION
+
+
+
+
+CREATE OR REPLACE FUNCTION total_salary RETURN NUMBER IS
+    avg_salary Employee.salary%TYPE;
+
+BEGIN
+    SELECT SUM(Salary) INTO avg_salary
+    FROM Employee;
+    RETURN avg_salary;
+END;
+/
+
+SET SERVEROUTPUT ON
+
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('THE TOTAL SALARY OF ALL STUFFS IN A MONTH IS: ' || total_salary);
+END;
+/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- LAB 4 IMPLEMENTATION
+
+
+
+
+-- FINDING THE DISTINCT SUPPLIERS
+
+SELECT DISTINCT(SupplierName) FROM Supplier;
+
+
+
+
+
+
+
+-- CONVERTING SALARY INTO USD AND SHOWING WITH A CUSTOMISED COLUMN NAME
+
+SELECT (Salary/94) AS Salary_in_USD FROM Employee;
+
+
+
+
+
+
+
+
+
+
+
+
+-- FINDING EMPLOYEE HAVING SALARY BETWEEN 30000 AND 70000
+
+SELECT name,EmployeeId FROM Employee WHERE Salary BETWEEN 30000 AND 70000;
+
+
+
+
+
+
+
+
+-- FINDING PRODUCTS HAVING PRICE 210/900/45
+
+SELECT PName,Quantity from product where price in (210,900,45);
+
+
+
+
+
+
+-- FINDING ALL THE SUPPLIERS HAVING 'K' IN THEIR NAME
+
+select SupplierName from supplier where SupplierName LIKE '%k%';
+
+
+
+
+-- multiple column ordering
+
+select Cname, CPhoneNumber, Billdate, Eid, Amount from Bill order by Eid, Amount;
+
+
+
+
+
+-- usuage of group by clause
+
+select DepartmentId from employee group by DepartmentId;
+
+
+
+
+
+-- having clause
+
+select Eid from bill group by Eid having max(Amount)>100;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- LAB 5 IMPLEMENTATION
+
+
+
+
+
+
+-- using union all function
+
+select Cname,CustomerId 
+from bill 
+where Amount>1000
+UNION all
+select c.Cname, c.CustomerId
+from bill c
+where c.Billmethod IN (
+    select Billmethod
+    from bill b, employee e
+    where b.Eid=e.Eid
+);
+
+
+
+
+
+
+-- using union operator and there happens to be no duplicate value
+
+select Cname,CustomerId 
+from bill 
+where Amount>1000
+UNION
+select c.Cname, c.CustomerId
+from bill c
+where c.Billmethod IN (
+    select Billmethod
+    from bill b, employee e
+    where b.Eid=e.Eid
+);
+
+
+
+
+
+
+-- implementation of intersect operator
+
+
+
+select PName, Quantity
+from product
+where Price>200
+intersect
+select PName, Quantity
+from product 
+where SupplierId IN (
+    select supplierid 
+    from supplier 
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- LAB 6 IMPLEMENTATION
+
+
+
+
+
+
+
+
+-- using natural join in Bill and Employee table
+SELECT Bill.CName, Employee.EName
+FROM Bill JOIN Employee
+ON Bill.EId= Employee.EId;
+
+
+
+
+-- inner join in Department and Employee
+
+SELECT Department.DepartmentName, Employee.EName
+FROM Department JOIN Employee
+ON Department.ManagerId= Employee.EId;
+
+
+
+-- CROSS JOINS/CARTESIAN PRODUCTS BETWEEN SUPPLIER AND CUSTOMER
+
+SELECT Supplier.SupplierName, Customer.CName
+FROM Supplier CROSS JOIN Customer;
+
+
+
+
+
+-- INNER JOIN BETWEEN CUSTOMER AND BILL
+
+SELECT Customer.CName, Bill.BillNo
+FROM Customer INNER JOIN Bill
+ON Customer.CustomerId=Bill.CustomerId;
+
+
+
+-- LEFT OUTER JOIN IN DEPARTMENT AND PRODUCT
+SELECT Department.DepartmentName,Department.ManagerId, Product.PName
+FROM Department LEFT OUTER JOIN Product
+ON Department.DepartmentId=Product.DepartmentId;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- PROCEDURE
+
+
+
+
+-- ADDING NEW RECORDS WITH THE HELP OF PROCEDURE
+
+
+CREATE OR REPLACE PROCEDURE ADD_RECORD(
+    supplierid Supplier.SupplierId%TYPE,
+    suppliername Supplier.SupplierName%TYPE,
+    sphonenumber Supplier.PNumber%TYPE) IS
+
+BEGIN
+    INSERT INTO Supplier VALUES(supplierid, suppliername, sphonenumber);
+
+END ADD_RECORD;
+/
+SHOW ERRORS;
+
+
+SET SERVEROUTPUT ON;
+BEGIN ADD_RECORD(1113452389,'Alex',01965437548);
+END;
+/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- TRANSACTION
+
+
+
+
+-- ADDING NEW VALUES INTO PRODUCT AND SAVING THE POINTS AND ROLLBACK IF REQUIRED
+
+insert into Product values(19,210,11,'Power Supply',1934647845,10164400);
+
+SAVEPOINT prod_1;
+
+select * from Product;
+
+insert into Product values(8,180,121,'Coca-cola',1923234565,08972243);
+
+
+
+SAVEPOINT prod_2;
+
+select * from Product;
+
+
+ROLLBACK to prod_2;
+
+
+
+
+
+select * from Product;
+
+
+ROLLBACK to prod_1;
+
+
+
+select * from Product;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--- TRIGGER
+
+
+
+
+
+-- APPLYING TRIGGER BEFORE INSERT OR UPDATE ON PRODUCT WHETHER ANY PRODUCT HAVING INVALID PRICE
+
+CREATE OR REPLACE TRIGGER check_price BEFORE INSERT OR UPDATE ON PRODUCT
+
+FOR EACH ROW
+DECLARE
+    p_min constant number(8,2) := 2;
+    p_max constant number(8,2) := 500000;
+
+BEGIN
+    IF :new.Price> p_max OR :new.Price<p_min then
+    RAISE_APPLICATION_ERROR(-20001,'PRICE IS NOT VALID');
+    END IF;
+END;
+/
+
+
+INSERT INTO PRODUCT VALUES(13,500082,25,'Roast Chicken',1934543231,11380320);
+
 
 
 

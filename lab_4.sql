@@ -1,3 +1,5 @@
+-- FINDING THE DISTINCT SUPPLIERS
+
 SELECT DISTINCT(SupplierName) FROM Supplier;
 
 
@@ -6,11 +8,22 @@ SELECT DISTINCT(SupplierName) FROM Supplier;
 
 
 
+-- CONVERTING SALARY INTO USD AND SHOWING WITH A CUSTOMISED COLUMN NAME
+
 SELECT (Salary/94) AS Salary_in_USD FROM Employee;
 
 
 
 
+
+
+
+
+
+
+
+
+-- FINDING EMPLOYEE HAVING SALARY BETWEEN 30000 AND 70000
 
 SELECT name,EmployeeId FROM Employee WHERE Salary BETWEEN 30000 AND 70000;
 
@@ -18,11 +31,19 @@ SELECT name,EmployeeId FROM Employee WHERE Salary BETWEEN 30000 AND 70000;
 
 
 
+
+
+
+-- FINDING PRODUCTS HAVING PRICE 210/900/45
+
 SELECT PName,Quantity from product where price in (210,900,45);
 
 
 
 
+
+
+-- FINDING ALL THE SUPPLIERS HAVING 'K' IN THEIR NAME
 
 select SupplierName from supplier where SupplierName LIKE '%k%';
 
